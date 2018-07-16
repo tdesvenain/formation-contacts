@@ -1,0 +1,11 @@
+Nous sommes le {{ now }}
+<ul>
+{% for person in person_list %}
+  <li>
+    <a href="{%  url 'person-detail' slug=person.global_id %}">{{ person }}</a>
+  </li>
+
+{% endfor %}
+</ul>
+
+<button><a href="{% url 'person-create' %}">Create new person</a></button>
