@@ -1,4 +1,5 @@
-<h1>{{ person }}</h1>
+<p><a href="{% url 'person-list' %}">&lt; Revenir à la liste</a></p>
+<h1>{{ person }} - {{ person.function.title }}</h1>
 {{ person.birth_date }}
 <a href="{% url 'person-update' slug=person.global_id %}">Edit</a>
 <a href="{% url 'person-delete' slug=person.global_id %}">Delete person</a>

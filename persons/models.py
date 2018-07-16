@@ -39,10 +39,20 @@ class Person(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
         # # python < 3.6
-        #return "{} {}".format(
+        # return "{} {}".format(
         #    self.first_name,
         #    self.last_name,
-        #)
+        # )
 
     def get_absolute_url(self):
         return reverse('person-detail')
+
+
+class Address(models.Model):
+    city = models.CharField('city', max_length=50)
+    zipcode = models.CharField('zipcode', max_length=50)
+    address = models.CharField('address', max_length=200)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return  f"{self.address}, {self.zipcode} {self.city}"

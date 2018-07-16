@@ -1,4 +1,8 @@
 <form method="post">{% csrf_token %}
     {{ form.as_p }}
+  {% for line in address_formset %}
+    <p>{{ line }}</p>
+  {% endfor %}
+{{ address_formset.management_form }}
     <input type="submit" value="Save" />
 </form>
