@@ -42,8 +42,7 @@ class PersonFilterSet(FilterSet):
 class PersonList(FilterView):
     filterset_class = PersonFilterSet
     template_name = 'persons/person_list.html'
-
-    # paginate_by = 1
+    paginate_by = 3
 
     def get_queryset(self):
         return (
