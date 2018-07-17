@@ -1,0 +1,18 @@
+{% load staticfiles %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Application contacts - {% block title %}{% endblock %}</title>
+  {% block extrastyle %}{% endblock %}
+  {% block extrahead %}{% endblock %}
+</head>
+<body>
+
+  {% block content %}{% endblock %}
+
+</body>
+</html>

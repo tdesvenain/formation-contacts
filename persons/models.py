@@ -9,6 +9,17 @@ class Gender(Enum):
     M = 'm'
     F = 'f'
 
+class PersonManager(models.Manager):
+
+    def get_displayed(self):
+        return self.get_queryset().filter(displayed=True)
+
+
+class DisplayedPersonManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(
+            displayed=True
+        )
 
 class Person(models.Model):
     GENDERS_CHOICES = [
@@ -25,7 +36,7 @@ class Person(models.Model):
     last_name = models.CharField(max_length=100)
     gender = models.CharField(max_length=1, choices=GENDERS_CHOICES)
     birth_date = models.DateField(blank=True, null=True)
-    function = models.ForeignKey(
+    function = models.OneToOneField(
         on_delete=models.PROTECT,
         to='functions.Function',
         null=True,
@@ -36,13 +47,11 @@ class Person(models.Model):
     class Meta:
         ordering = ('last_name',)
 
+    objects = PersonManager()
+    displayed_objects = DisplayedPersonManager()
+
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
-        # # python < 3.6
-        # return "{} {}".format(
-        #    self.first_name,
-        #    self.last_name,
-        # )
 
     def get_absolute_url(self):
         return reverse('person-detail')

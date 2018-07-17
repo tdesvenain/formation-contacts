@@ -1,5 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
 <p><a href="{% url 'person-list' %}">&lt; Revenir à la liste</a></p>
 <h1>{{ person }} - {{ person.function.title }}</h1>
 {{ person.birth_date }}
 <a href="{% url 'person-update' slug=person.global_id %}">Edit</a>
-<a href="{% url 'person-delete' slug=person.global_id %}">Delete person</a>
+<a href="{% url 'person-delete' slug=person.global_id %}">Delete</a>
+{% for address in person.addresses.all %}
+<div>
+  {{ address.address }}, {{ address.zip_code }} {{ address.city }}
+</div>
+{% endfor %}
+{% endblock %}
