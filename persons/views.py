@@ -33,7 +33,8 @@ class PersonFilterSet(FilterSet):
     def searchvector_filter(self, queryset, name, value):
         return (
             queryset
-                .annotate(search_vector=SearchVector('first_name', 'last_name', StringAgg('addresses__city', ' ')))
+                .annotate(search_vector=SearchVector('first_name', 'last_name', StringAgg('addresses__city', ' '),
+                                                     config='french'))
                 .filter(search_vector=value)
         )
 
@@ -50,7 +51,7 @@ class PersonList(FilterView):
                 .select_related('function')
                 .prefetch_related(Prefetch(
                 'addresses',
-                queryset=Address.objects.only('person_id', 'city')
+                queryset=Address.objects
                     .distinct('person_id')
                     .order_by('person_id', '-pk')
                 # to_attr='addresses'
