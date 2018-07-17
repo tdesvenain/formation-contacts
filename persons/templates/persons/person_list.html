@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
   Nous sommes le {{ now }}
+  <div>
+    Filtrer :
+    <form action="" method="get">
+      {{ filter.form.as_p }}
+      <input type="submit"/>
+    </form>
+  </div>
+
   <ul>
     {% for person in person_list %}
       <li>

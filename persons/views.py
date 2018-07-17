@@ -1,15 +1,19 @@
 # Create your views here.
-from django.contrib.postgres.aggregates import StringAgg, JSONBAgg
-from django.db.models import Prefetch, Count, Max
+from django.contrib.postgres.aggregates import StringAgg
+from django.contrib.postgres.search import SearchVector
+from django.db.models import Prefetch, Count
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.timezone import now
-from django.views.generic import ListView, DetailView, CreateView, DeleteView
+from django.views.generic import DetailView, CreateView, DeleteView
 from django.views.generic.base import View
 # def welcome(request: HttpRequest) -> HttpResponse:
 #    return HttpResponse('<h1>Bienvenue sur la gestion des personnes</h1>')
+from django_filters import FilterSet, ModelChoiceFilter, CharFilter
+from django_filters.views import FilterView
 from extra_views import UpdateWithInlinesView, InlineFormSet
 
+from functions.models import Function
 from persons.models import Person, Address
 
 
@@ -19,8 +23,24 @@ class Welcome(View):
         return HttpResponse('<h1>Bienvenue sur la gestion des personnes (class based)</h1>')
 
 
-class PersonList(ListView):
-    model = Person
+class PersonFilterSet(FilterSet):
+    text = CharFilter(
+        label='Text',
+        method='searchvector_filter',
+    )
+    function = ModelChoiceFilter(queryset=Function.objects.all())
+
+    def searchvector_filter(self, queryset, name, value):
+        return (
+            queryset
+                .annotate(search_vector=SearchVector('first_name', 'last_name', StringAgg('addresses__city', ' ')))
+                .filter(search_vector=value)
+        )
+
+
+class PersonList(FilterView):
+    filterset_class = PersonFilterSet
+    template_name = 'persons/person_list.html'
 
     # paginate_by = 1
 
