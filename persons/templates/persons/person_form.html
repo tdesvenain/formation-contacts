@@ -1,8 +1,8 @@
 <form method="post">{% csrf_token %}
-    {{ form.as_p }}
-  {% for line in address_formset %}
-    <p>{{ line }}</p>
+  {{ form.as_p }}
+  {% for inline in inlines %}
+    <p>{{ inline.as_p }}</p>
+    {{ line.management_form }}
   {% endfor %}
-{{ address_formset.management_form }}
-    <input type="submit" value="Save" />
+  <input type="submit" value="Save"/>
 </form>

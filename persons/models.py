@@ -52,7 +52,7 @@ class Address(models.Model):
     city = models.CharField('city', max_length=50)
     zipcode = models.CharField('zipcode', max_length=50)
     address = models.CharField('address', max_length=200)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='addresses')
 
     def __str__(self):
         return  f"{self.address}, {self.zipcode} {self.city}"

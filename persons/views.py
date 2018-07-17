@@ -3,13 +3,13 @@
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.timezone import now
-from django.views.generic import ListView, DetailView, UpdateView, CreateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, DeleteView
 from django.views.generic.base import View
-
 # def welcome(request: HttpRequest) -> HttpResponse:
 #    return HttpResponse('<h1>Bienvenue sur la gestion des personnes</h1>')
-from persons.forms import AddressFormSet
-from persons.models import Person
+from extra_views import UpdateWithInlinesView, InlineFormSet
+
+from persons.models import Person, Address
 
 
 class Welcome(View):
@@ -37,35 +37,37 @@ class PersonDetail(DetailView):
     slug_field = 'global_id'
 
 
-class PersonUpdate(UpdateView):
+class AddressesInline(InlineFormSet):
+    model = Address
+    fields = '__all__'
+    factory_kwargs = {'extra': 1}
+
+
+
+class PersonUpdate(UpdateWithInlinesView):
     model = Person
     slug_field = 'global_id'
-    fields = [
-        'first_name',
-        'last_name',
-        'gender',
-        'birth_date',
-        'function',
-    ]
-
-    def form_valid(self, form):
-        """If the form is valid, save the associated model."""
-        self.object = form.save()
-        valid = super().form_valid(form)
-        address_formset = self.get_context_data()['address_formset']
-        if address_formset.is_valid():
-            address_formset.save()
-        return valid
-
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        if self.request.POST:
-            address_formset = AddressFormSet(self.request.POST, instance=self.object)
-        else:
-            address_formset = AddressFormSet(instance=self.object)
-        context_data['address_formset'] = address_formset
-        return context_data
-
+    inlines = [AddressesInline]
+    fields = '__all__'
+    #
+    # def form_valid(self, form):
+    #     """If the form is valid, save the associated model."""
+    #     self.object = form.save()
+    #     valid = super().form_valid(form)
+    #     address_formset = self.get_context_data()['address_formset']
+    #     if address_formset.is_valid():
+    #         address_formset.save()
+    #     return valid
+    #
+    # def get_context_data(self, **kwargs):
+    #     context_data = super().get_context_data(**kwargs)
+    #     if self.request.POST:
+    #         address_formset = AddressFormSet(self.request.POST, instance=self.object)
+    #     else:
+    #         address_formset = AddressFormSet(instance=self.object)
+    #     context_data['address_formset'] = address_formset
+    #     return context_data
+    #
     def get_success_url(self):
         return reverse(
             'person-detail',
