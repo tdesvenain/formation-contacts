@@ -1,5 +1,6 @@
 # Create your views here.
-from django.db.models import Prefetch
+from django.contrib.postgres.aggregates import StringAgg, JSONBAgg
+from django.db.models import Prefetch, Count, Max
 from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.timezone import now
@@ -27,28 +28,21 @@ class PersonList(ListView):
         return (
             Person.objects.get_displayed()
                 .select_related('function')
-                .prefetch_related(
-                Prefetch(
-                    'addresses',
-                    queryset=Address.objects.only('person_id', 'city').order_by('-pk')
-                    #to_attr='addresses'
-                ))
+                .prefetch_related(Prefetch(
+                'addresses',
+                queryset=Address.objects.only('person_id', 'city')
+                    .distinct('person_id')
+                    .order_by('person_id', '-pk')
+                # to_attr='addresses'
+            )).annotate(
+                city_agg=StringAgg('addresses__city', ', ', distinct=True),
+                addr_count=Count('addresses'),
+            )
         )
 
     def get_context_data(self, *args, **kwargs):
         context_data = super().get_context_data(*args, **kwargs)
         context_data['now'] = now()
-        context_data['person_list'] = []
-        for person in self.object_list:
-            person_info = {
-                'global_id': person.global_id,
-                'full_name': str(person),
-                'function_title': person.function.title if person.function else '',
-            }
-            #import pdb; pdb.set_trace()
-            addresses = list(person.addresses.all())
-            person_info['first_address'] = addresses[0] if addresses else ''
-            context_data['person_list'].append(person_info)
         return context_data
 
 

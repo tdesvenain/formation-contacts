@@ -21,6 +21,7 @@ class DisplayedPersonManager(models.Manager):
             displayed=True
         )
 
+
 class Person(models.Model):
     GENDERS_CHOICES = [
         (Gender.M.value, 'Homme'),

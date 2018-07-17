@@ -1,15 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
-Nous sommes le {{ now }}
-<ul>
-{% for person in person_list %}
-  <li>
-    <a href="{%  url 'person-detail' slug=person.global_id %}">
-      {{ person.full_name }} - {{ person.function_title }} - {{ person.first_address.city }}</a>
-  </li>
+  Nous sommes le {{ now }}
+  <ul>
+    {% for person in person_list %}
+      <li>
+        <a href="{% url 'person-detail' slug=person.global_id %}">
+          <b>{{ person }}</b> - {{ person.function|default_if_none:'' }}
+        </a>
 
-{% endfor %}
-</ul>
+        {% if person.city_agg %}({{ person.city_agg }}){% endif %}
 
-<button><a href="{% url 'person-create' %}">Create new person</a></button>
+        <br/>
+        {% with address=person.addresses.all %}
+          {{ address|first }}
+        {% endwith %}
+
+      </li>
+
+    {% endfor %}
+  </ul>
+
+  <button><a href="{% url 'person-create' %}">Create new person</a></button>
 {% endblock %}
