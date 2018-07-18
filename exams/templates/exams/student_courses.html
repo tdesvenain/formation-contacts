@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+&lt;-  <a href="{% url 'exams:exam-list' %}">Revenir à la liste</a>
+<h1>{{ data.title }}</h1>
+  <ul>
+    {% for note in data.student_notes %}
+      <li>{{ note }}</li>
+    {% endfor %}
+  </ul>
+  <br/>
+  Moyenne : {{ data.avg }}
+  Mini : {{ data.min }}
+  Maxi : {{ data.max }}
+{% endblock %}

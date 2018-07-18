@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <ul>
+    {% for exam in exam_list %}
+      <li>
+        <a href="{% url 'exams:exam-notes-list' pk=exam.pk %}">
+          <b>{{ exam }}</b>
+        </a>
+       <br />
+        moyenne: {{ exam.avg_note }}
+      </li>
+
+    {% endfor %}
+  </ul>
+{% endblock %}
