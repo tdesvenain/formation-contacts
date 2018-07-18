@@ -44,3 +44,27 @@ class ExamNotesView(ListView):
         context_data = super().get_context_data(*args, **kwargs)
         return context_data
 
+
+class StudentCourses(ListView):
+    model = Course
+    slug_field = 'student_id'
+    template_name = 'exams/student_courses.html'
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        qs = qs.prefetch_related('notes')
+        qs = (qs.prefetch_related(
+            Prefetch(
+                'exams',
+                queryset=Exam.objects.all()
+                    .filter(date_time__year=2018)
+                    .prefetch_related(
+                    Prefetch(
+                        'notes',
+                        queryset=Note.objects.filter(student_id=self.kwargs['slug'])
+                    ))
+                    .annotate(avg_note=Avg('notes'))
+            ))
+        )
+        import pdb; pdb.set_trace()
+        return qs
