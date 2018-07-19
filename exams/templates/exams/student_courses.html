@@ -3,12 +3,10 @@
 &lt;-  <a href="{% url 'exams:exam-list' %}">Revenir à la liste</a>
 <h1>{{ data.title }}</h1>
   <ul>
-    {% for note in data.student_notes %}
-      <li>{{ note }}</li>
+    {% for course in course_list %}
+      <li>{{ course }}</li>
+      {% if course.avg_note %}{{ course.avg_note }}{% endif %}
     {% endfor %}
   </ul>
   <br/>
-  Moyenne : {{ data.avg }}
-  Mini : {{ data.min }}
-  Maxi : {{ data.max }}
 {% endblock %}

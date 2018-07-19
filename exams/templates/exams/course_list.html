@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <ul>
+    {% for course in course_list %}
+      <li>
+        <a>
+          <b>{{ course }}</b>
+        </a>
+       <br />
+        moyenne: {{ course.avg_note }}
+      </li>
+
+    {% endfor %}
+  </ul>
+{% endblock %}

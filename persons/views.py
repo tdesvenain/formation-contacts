@@ -33,8 +33,12 @@ class PersonFilterSet(FilterSet):
     def searchvector_filter(self, queryset, name, value):
         return (
             queryset
-                .annotate(search_vector=SearchVector('first_name', 'last_name', StringAgg('addresses__city', ' '),
-                                                     config='french'))
+                .annotate(search_vector=SearchVector(
+                  'first_name',
+                  'last_name',
+                  StringAgg('addresses__city', ' '),
+                config='french')
+            )
                 .filter(search_vector=value)
         )
 
@@ -60,9 +64,22 @@ class PersonList(FilterView):
             )
         )
 
+    def _get_parameters_string(self):
+        get_copy = self.request.GET.copy()
+        parameters = get_copy.pop('page', True) and get_copy.urlencode()
+        return parameters
+
     def get_context_data(self, *args, **kwargs):
         context_data = super().get_context_data(*args, **kwargs)
         context_data['now'] = now()
+        context_data['parameters'] = self._get_parameters_string()
+
+        stats = Person.objects.get_displayed().aggregate(
+            number_persons=Count('id', distinct=True),
+            number_cities=Count('addresses__city', distinct=True)
+        )
+        context_data['stats'] = stats
+
         return context_data
 
 

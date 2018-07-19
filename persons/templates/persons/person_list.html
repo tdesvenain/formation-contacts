@@ -1,5 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
+
+  <hr/>
+  <p><b>Nombre de personnes</b> {{ stats.number_persons }}</p>
+  <p><b>Nombre de villes</b> {{ stats.number_cities }}</p>
+
+  <hr />
+
   Nous sommes le {{ now }}
   <div>
     Filtrer :
@@ -12,7 +19,7 @@
   <ul>
     {% for person in person_list %}
       <li>
-        <a href="{% url 'person-detail' slug=person.global_id %}">
+        <a href="{% url 'persons:person-detail' slug=person.global_id %}">
           <b>{{ person }}</b> - {{ person.function|default_if_none:'' }}
         </a>
 
@@ -29,19 +36,21 @@
   </ul>
   {% if is_paginated %}
     <div class="pagination">
+      <a href="?{{ parameters }}&page=1">Premier</a>
       {% if page_obj.has_previous %}
-        <a href="{{ request.get_full_path }}&page={{ page_obj.previous_page_number }}">previous</a>
+        <a href="?{{ parameters }}&page={{ page_obj.previous_page_number }}">Précédent</a>
       {% endif %}
       <span class="page-current">
               Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
           </span>
       {% if page_obj.has_next %}
-        <a href="{{ request.get_full_path }}&page={{ page_obj.next_page_number }}">next</a>
+        <a href="?{{ parameters }}&page={{ page_obj.next_page_number }}">Suivant</a>
       {% endif %}
+      <a href="?{{ parameters }}&page={{ page_obj.paginator.num_pages }}">Dernier</a>
     </div>
   {% endif %}
   <div>
     <br/>
-    <button><a href="{% url 'person-create' %}">Create new person</a></button>
+    <button><a href="{% url 'persons:person-create' %}">Create new person</a></button>
   </div>
 {% endblock %}

@@ -1,12 +1,12 @@
 from django.contrib.postgres.aggregates import ArrayAgg, StringAgg
-from django.db.models import Avg, Min, Max, F, Value as V, CharField, Prefetch
+from django.db.models import Avg, Min, Max, F, Value as V, CharField
 # Create your views here.
 from django.db.models.functions import Concat, Cast
+from django.db.models.query_utils import Q
 from django.views.generic import ListView
 
 from courses.models import Course
 from exams.models import Exam, Note
-from persons.models import Student
 
 
 class ExamsList(ListView):
@@ -16,9 +16,19 @@ class ExamsList(ListView):
         qs = (
             super().get_queryset()
                 .select_related('course')
-                .prefetch_related('notes')
-                .annotate(avg_note=Avg('notes__note'))
+                .annotate(
+                avg_note=Avg('notes__note'),
+                array_note=ArrayAgg('notes__note'))
         )
+        return qs
+
+
+class CoursesList(ListView):
+    model = Course
+    template_name = 'exams/course_list.html'
+
+    def get_queryset(self):
+        qs = super().get_queryset().annotate(avg_course_note=Avg('exams__notes__note'))
         return qs
 
 
@@ -28,14 +38,22 @@ class ExamNotesView(ListView):
     context_object_name = 'data'
 
     def get_queryset(self):
-        qs = (super().get_queryset().filter(exam_id=self.kwargs['pk'])
+        qs = (super().get_queryset()
+            .filter(exam_id=self.kwargs['pk'])
             .aggregate(
             avg=Avg('note'),
             min=Min('note'),
             max=Max('note'),
+            # extreme !! :)
             title=StringAgg('exam__course__title', ',', distinct=True),
-            student_notes=ArrayAgg(Concat(F('student__first_name'), V(' '), F('student__last_name'), V(' : '),
-                                          Cast(F('note'), CharField())))
+            # extreme !! :)
+            student_notes=ArrayAgg(
+                Concat(
+                    F('student__first_name'),
+                    V(' '),
+                    F('student__last_name'),
+                    V(' : '),
+                    Cast(F('note'), CharField()))),
         )
         )
         return qs
@@ -52,19 +70,9 @@ class StudentCourses(ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        qs = qs.prefetch_related('notes')
-        qs = (qs.prefetch_related(
-            Prefetch(
-                'exams',
-                queryset=Exam.objects.all()
-                    .filter(date_time__year=2018)
-                    .prefetch_related(
-                    Prefetch(
-                        'notes',
-                        queryset=Note.objects.filter(student_id=self.kwargs['slug'])
-                    ))
-                    .annotate(avg_note=Avg('notes'))
-            ))
+        return qs.annotate(
+            avg_note=Avg(
+                'exams__notes__note',
+                filter=Q(exams__notes__student_id=self.kwargs['pk']),
+            ),
         )
-        import pdb; pdb.set_trace()
-        return qs
